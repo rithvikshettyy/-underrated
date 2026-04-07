@@ -14,7 +14,9 @@ export function OAuthButtons() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: process.env.NODE_ENV === 'production'
+            ? 'https://underrated-ten.vercel.app/auth/callback'
+            : `${window.location.origin}/auth/callback`,
         },
       });
       if (error) throw error;
