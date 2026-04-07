@@ -153,6 +153,7 @@ export default function Home() {
                           <img
                             src={place.image_urls[0]}
                             alt={place.title}
+                            loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                           />
                         </div>

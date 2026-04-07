@@ -168,6 +168,7 @@ export default function DiscoverPage() {
                           <img
                             src={place.image_urls[0]}
                             alt={place.title}
+                            loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                           />
                         </div>

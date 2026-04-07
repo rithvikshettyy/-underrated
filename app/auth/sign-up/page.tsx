@@ -59,6 +59,10 @@ export default function SignUpPage() {
            username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'Explorer',
         };
         setCurrentUser(user);
+        
+        // Force a hard refresh to the homepage to ensure all session states are synchronized
+        window.location.href = '/';
+        return;
       }
 
       router.push('/auth/sign-up-success');

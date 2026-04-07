@@ -94,9 +94,25 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
   }, [showNotifications, showProfileMenu]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
-    router.push('/');
+    try {
+      // 1. Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // 2. Clear local storage immediately for a snappy UI response
+      const { setCurrentUser } = await import('@/lib/storage');
+      setCurrentUser(null);
+      
+      // 3. Clear local state in the header
+      setLocalUser(null);
+      setShowProfileMenu(false);
+      
+      // 4. Force a hard refresh and redirect to ensure all states are reset
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      // Fail-safe: at least redirect home
+      window.location.href = '/';
+    }
   };
 
   const notifications = [

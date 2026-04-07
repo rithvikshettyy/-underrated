@@ -65,8 +65,8 @@ export default function LoginPage() {
         };
         setCurrentUser(user);
         
-        // Use a slight delay to ensure storage is synced before redirect
-        setTimeout(() => router.push('/dashboard'), 100);
+        // Force a hard refresh to the homepage to ensure all session states are synchronized
+        window.location.href = '/';
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
