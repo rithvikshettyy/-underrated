@@ -49,25 +49,59 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Sync user state from storage
+  // Sync user state from storage and Supabase directly for absolute certainty
   const [localUser, setLocalUser] = useState(user);
 
   useEffect(() => {
-    setLocalUser(user);
-  }, [user]);
+    // 1. Initial resolution on mount
+    const resolveUser = async () => {
+      // Check Supabase first (source of truth)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setLocalUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'Explorer',
+          avatar_url: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+          user_metadata: session.user.user_metadata
+        });
+      } else {
+        // Fallback to localStorage
+        const { getCurrentUser } = await import('@/lib/storage');
+        setLocalUser(getCurrentUser());
+      }
+    };
 
-  useEffect(() => {
+    resolveUser();
+
+    // 2. Local storage listener
     const handleStorageChange = () => {
       import('@/lib/storage').then(mod => {
         const updatedUser = mod.getCurrentUser();
-        if (updatedUser) {
-          setLocalUser(updatedUser);
-        }
+        setLocalUser(updatedUser);
       });
     };
 
+    // 3. Supabase Auth listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setLocalUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'Explorer',
+          avatar_url: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+          user_metadata: session.user.user_metadata
+        });
+      } else if (event === 'SIGNED_OUT') {
+        setLocalUser(null);
+      }
+    });
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Click outside to close menus
