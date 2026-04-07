@@ -11,13 +11,13 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      // Use hosted URL in production or origin in development
-      const isDev = process.env.NODE_ENV === 'development'
-      const redirectUrl = isDev 
-        ? `${origin}${next}`
-        : `https://underrated-ten.vercel.app${next}`
+      // Robustly redirect to the homepage after successful authentication
+      const isProduction = process.env.NODE_ENV === 'production'
+      const baseUrl = isProduction 
+        ? 'https://underrated-ten.vercel.app' 
+        : origin
 
-      return NextResponse.redirect(redirectUrl)
+      return NextResponse.redirect(`${baseUrl}/`)
     }
   }
 
