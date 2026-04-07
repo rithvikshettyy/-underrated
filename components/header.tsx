@@ -27,7 +27,7 @@ function Clock() {
       const hours = Math.floor(Math.abs(offset) / 60);
       const mins = Math.abs(offset) % 60;
       const gmt = `GMT${offset >= 0 ? '+' : '-'}${hours}:${mins.toString().padStart(2, '0')}`;
-      
+
       setTime(`${timeString} ${gmt}`);
     };
 
@@ -74,12 +74,12 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      
+
       // Close notifications if clicking outside
       if (showNotifications && !target.closest('.notifications-menu')) {
         setShowNotifications(false);
       }
-      
+
       // Close profile menu if clicking outside
       if (showProfileMenu && !target.closest('.profile-menu')) {
         setShowProfileMenu(false);
@@ -89,7 +89,7 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
     if (showNotifications || showProfileMenu) {
       document.addEventListener('mousedown', handleGlobalClick);
     }
-    
+
     return () => document.removeEventListener('mousedown', handleGlobalClick);
   }, [showNotifications, showProfileMenu]);
 
@@ -107,20 +107,20 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
 
   return (
     <nav className={`${variant === 'home'
-        ? 'fixed top-0 w-full z-50'
-        : 'sticky top-0 z-40'
+      ? 'fixed top-0 w-full z-50'
+      : 'sticky top-0 z-40'
       } border-b border-border/40 bg-background/80 backdrop-blur-md transition-colors duration-500`}>
       <div className="max-w-6xl mx-auto px-6 h-[54px] flex items-center justify-between text-sm relative">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center group">
-          <span className="font-bold tracking-tight text-foreground hover:text-primary transition-colors">underrated</span>
+          <span className="font-bold tracking-tight text-foreground hover:text-primary transition-colors">Underrated</span>
         </Link>
 
         {/* Search Overlay */}
         {showSearch && (
           <div className="absolute inset-0 bg-background flex items-center px-6 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
             <Search className="w-5 h-5 text-[#a1a1aa] mr-4" />
-            <input 
+            <input
               autoFocus
               type="text"
               placeholder="Search hidden gems, cities, categories..."
@@ -129,7 +129,7 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Escape' && setShowSearch(false)}
             />
-            <button 
+            <button
               onClick={() => setShowSearch(false)}
               className="p-2 text-muted-foreground hover:text-foreground smooth-transition"
             >
@@ -143,9 +143,9 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
           {!showSearch && (
             <div className="hidden md:flex items-center gap-6 border-r border-border/40 pr-6">
               <Clock />
-              
-              <Link 
-                href="/discover" 
+
+              <Link
+                href="/discover"
                 className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground font-medium smooth-transition"
               >
                 Explore Events
@@ -156,16 +156,16 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
 
           <div className="flex items-center gap-5 relative">
             {/* Search Toggle */}
-            <button 
+            <button
               onClick={() => setShowSearch(true)}
               className="w-9 h-9 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/80 smooth-transition"
             >
               <Search className="w-[18px] h-[18px] stroke-[1.5]" />
             </button>
-            
+
             {localUser && (
               <div className="relative notifications-menu">
-                <button 
+                <button
                   onClick={() => {
                     setShowNotifications(!showNotifications);
                     setShowProfileMenu(false);
@@ -202,7 +202,7 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
 
             {localUser ? (
               <div className="relative profile-menu">
-                <button 
+                <button
                   onClick={() => {
                     setShowProfileMenu(!showProfileMenu);
                     setShowNotifications(false);
@@ -210,9 +210,9 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
                   className="w-9 h-9 flex items-center justify-center rounded-full overflow-hidden border border-border/40 bg-secondary hover:border-border transition-all active:scale-95 smooth-transition"
                 >
                   {localUser.avatar_url ? (
-                    <img 
-                      src={localUser.avatar_url} 
-                      alt="Profile" 
+                    <img
+                      src={localUser.avatar_url}
+                      alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -227,9 +227,9 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
                     <div className="p-4 flex items-center gap-3 border-b border-border/40 bg-secondary/20">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden">
                         {localUser.avatar_url ? (
-                          <img 
-                            src={localUser.avatar_url} 
-                            alt="Profile" 
+                          <img
+                            src={localUser.avatar_url}
+                            alt="Profile"
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -245,26 +245,26 @@ export function Header({ user, variant = 'home' }: HeaderProps) {
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Menu List */}
                     <div className="p-1 space-y-0.5">
-                      <Link 
-                        href={`/users/${localUser.id}`} 
+                      <Link
+                        href={`/users/${localUser.id}`}
                         onClick={() => setShowProfileMenu(false)}
                         className="flex items-center gap-3 w-full p-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl smooth-transition group"
                       >
                         <User className="w-4 h-4 group-hover:text-primary transition-colors" />
                         View Profile
                       </Link>
-                      <Link 
-                        href="/settings" 
+                      <Link
+                        href="/settings"
                         onClick={() => setShowProfileMenu(false)}
                         className="flex items-center gap-3 w-full p-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl smooth-transition group"
                       >
                         <SettingsIcon className="w-4 h-4 group-hover:text-primary transition-colors" />
                         Settings
                       </Link>
-                      <button 
+                      <button
                         onClick={handleSignOut}
                         className="flex items-center gap-3 w-full p-3 text-sm text-[#ef4444] hover:bg-red-500/10 rounded-xl smooth-transition group text-left"
                       >
