@@ -35,6 +35,9 @@ export function SessionSync() {
               last_name: metadata.last_name || lastName,
             }
           });
+          
+          // Force a small delay and event dispatch for other components like Header
+          window.dispatchEvent(new Event('storage'));
         }
       } else {
         // If NO session, clear local storage
