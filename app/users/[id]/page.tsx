@@ -26,7 +26,8 @@ import {
   deletePlace, 
   getSavedPlaces, 
   toggleSavePlace, 
-  isPlaceSaved 
+  isPlaceSaved,
+  type User
 } from '@/lib/storage';
 
 export default function UserProfilePage() {
@@ -64,26 +65,27 @@ export default function UserProfilePage() {
 
       setCurrentUser(currUser);
 
-      if (currUser?.id === userId) {
+      // Smart resolution: check if it's 'me' by ID or username
+      const isMe = currUser && (currUser.id === userId || currUser.username === userId);
+      
+      if (isMe) {
         setUser(currUser);
       } else if (userPlaces.length > 0) {
+        // Find if any existing place suggests this user's identity
+        const targetPlace = userPlaces[0];
         setUser({
-          id: userId,
-          user_metadata: {
-            first_name: userPlaces[0].username,
-            username: userPlaces[0].username.toLowerCase().replace(/\s/g, '')
-          },
-          created_at: userPlaces[0].created_at
-        });
+          id: targetPlace.user_id,
+          username: targetPlace.username,
+          created_at: targetPlace.created_at || new Date().toISOString(),
+          email: ''
+        } as User);
       } else {
+        // Final fallback for missing users
         setUser({
           id: userId,
-          user_metadata: {
-            first_name: 'Rithvik Shetty',
-            username: 'rithvikshetty'
-          },
+          username: 'User',
           created_at: new Date().toISOString()
-        });
+        } as User);
       }
       setLoading(false);
     };
@@ -218,7 +220,8 @@ export default function UserProfilePage() {
                 );
               })}
               
-              {(!user?.user_metadata?.socials || Object.values(user.user_metadata.socials).every(v => !v)) && (
+              {/* Fallback check for missing socials */}
+              {(!user?.user_metadata?.socials || Object.entries(user.user_metadata.socials).filter(([_, h]) => !!h).length === 0) && (
                  <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/40 italic">No social links added</p>
               )}
             </div>

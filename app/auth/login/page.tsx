@@ -31,7 +31,25 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
+    // Dynamic redirect URL for Supabase
+    const redirectTo = process.env.NODE_ENV === 'production'
+      ? 'https://underrated-ten.vercel.app/auth/callback'
+      : `${window.location.origin}/auth/callback`;
+
     try {
+      // If we only have email, try magic link
+      if (!password) {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: redirectTo,
+          },
+        });
+        if (error) throw error;
+        alert('Magic link sent! Check your email.');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -46,9 +64,10 @@ export default function LoginPage() {
           username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'Explorer',
         };
         setCurrentUser(user);
+        
+        // Use a slight delay to ensure storage is synced before redirect
+        setTimeout(() => router.push('/dashboard'), 100);
       }
-
-      router.push('/dashboard');
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {

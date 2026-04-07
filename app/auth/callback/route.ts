@@ -11,19 +11,16 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // Tool to check for local dev environments
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can be sure origin is correct
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
-      }
+      // Use hosted URL in production or origin in development
+      const isDev = process.env.NODE_ENV === 'development'
+      const redirectUrl = isDev 
+        ? `${origin}${next}`
+        : `https://underrated-ten.vercel.app${next}`
+
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  return NextResponse.redirect(`${origin}/auth/error?error=auth-code-exchange-failed`)
 }
