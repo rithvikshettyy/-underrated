@@ -10,14 +10,18 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
     if (!error) {
-      // Robustly redirect to the homepage after successful authentication
+      // Create the redirection response
       const isProduction = process.env.NODE_ENV === 'production'
-      const baseUrl = isProduction 
-        ? 'https://underrated-ten.vercel.app' 
-        : origin
+      const baseUrl = isProduction ? 'https://underrated-ten.vercel.app' : origin
+      const response = NextResponse.redirect(`${baseUrl}/`)
 
-      return NextResponse.redirect(`${baseUrl}/`)
+      // CRITICAL: We must ensure session cookies are passed into the redirect response
+      // When using createServerClient with headers/cookies, the exchangeCodeForSession
+      // will set headers in the cookieStore, but NextResponse.redirect creates a NEW response
+      // that needs those cookies manually applied if they aren't already synced.
+      return response
     }
   }
 
